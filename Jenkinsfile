@@ -91,6 +91,21 @@ pipeline {
             }
         }
 
+        stage('Run Build') {
+\
+            steps {
+                script {
+                    updateGitHubStatus('pending', 'Build in progress')
+                    sh 'npm run build' 
+                }
+            }
+            post {
+                success { updateGitHubStatus('success', 'Build completed') }
+                failure { updateGitHubStatus('error', 'Build failed') }
+            }
+        }
+
+
     }
 
 }
