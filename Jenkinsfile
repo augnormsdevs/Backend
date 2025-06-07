@@ -126,6 +126,11 @@ pipeline {
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker build -t augustine963/ekissi_backend:latest .
                         docker push augustine963/ekissi_backend:latest
+                        echo "$DB_HOST"
+                        echo "$DB_PORT"
+                        echo "$DB_NAME"
+                        echo "$DB_PASSWORD"
+                        echo "$DB_USER"
                         '''
                    }
 
@@ -152,11 +157,11 @@ pipeline {
                     docker run -d --name ekissi_backend \\
                       --network ekissi_network \\
                       -p 3000:3000 \\
-                      -e DB_HOST=$DB_HOST \\
-                      -e DB_PORT=$DB_PORT \\
-                      -e DB_NAME=$DB_NAME \\
-                      -e DB_USER=$DB_USER \\
-                      -e DB_PASSWORD=$DB_PASSWORD \\
+                      -e DB_HOST=mysql_database \\
+                      -e DB_PORT=3306 \\
+                      -e DB_NAME=ekissi \\
+                      -e DB_USER=root \\
+                      -e DB_PASSWORD=microvelli027 \\
                       augustine963/ekissi_backend:latest
 
                     echo "✅ Deployment complete. App should be running on port 3000"
