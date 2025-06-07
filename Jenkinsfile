@@ -143,7 +143,7 @@ pipeline {
                     echo "🚀 Starting new container..."
                     docker run -d --name ekissi_backend -p 3000:3000 augustine963/ekissi_backend:latest
 
-                    echo "✅ Deployment complete. App should be running on port 3000
+                    echo "✅ Deployment complete. App should be running on port 3000"
                 '''
                 sh 'chmod +x deploy.sh'
             }
