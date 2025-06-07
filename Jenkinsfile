@@ -25,49 +25,51 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps { checkout scm }
         }
-    }
 
-    stage('Validate package.json') {
-        environment {
-            STATUS_CONTEXT = 'jenkins/package-validation'
-        }
-        steps {
-            configFileProvider([configFile(fileId: 'fe7d7862-f4d5-4b49-aa6a-0fd72c48292b', variable: 'backend-packages')]) {
-                sh '''
-                    echo "Comparing current package.json to reference..."
+        stage('Validate package.json') {
+            environment {
+                STATUS_CONTEXT = 'jenkins/package-validation'
+            }
+            steps {
+                configFileProvider([configFile(fileId: 'fe7d7862-f4d5-4b49-aa6a-0fd72c48292b', variable: 'backend-packages')]) {
+                    sh '''
+                        echo "Comparing current package.json to reference..."
 
-                    # Extract dependencies only (or use jq for advanced comparison)
-                    jq '.dependencies' package.json > current_deps.json
-                    jq '.dependencies' "$backend-packages" > reference_deps.json
+                        # Extract dependencies only (or use jq for advanced comparison)
+                        jq '.dependencies' package.json > current_deps.json
+                        jq '.dependencies' "$backend-packages" > reference_deps.json
 
-                    # Diff and store result
-                    diff_output=$(diff -u reference_deps.json current_deps.json || true)
+                        # Diff and store result
+                        diff_output=$(diff -u reference_deps.json current_deps.json || true)
 
-                    if [ -n "$diff_output" ]; then
-                        echo "Dependency differences found:"
-                        echo "$diff_output"
-                        echo "$diff_output" > diff_result.txt
-                        exit 1  # Fail the step
-                    else
-                        echo "No differences found in dependencies."
-                    fi
-                '''
+                        if [ -n "$diff_output" ]; then
+                            echo "Dependency differences found:"
+                            echo "$diff_output"
+                            echo "$diff_output" > diff_result.txt
+                            exit 1  # Fail the step
+                        else
+                            echo "No differences found in dependencies."
+                        fi
+                    '''
+                }
             }
-        }
-        post {
-            success {
-                updateGitHubStatus('success', 'Validation passed')
+            post {
+                success {
+                    updateGitHubStatus('success', 'Validation passed')
+                }
+                unstable {
+                    updateGitHubStatus('failure', 'Validation differences found')
+                }
+                failure {
+                    updateGitHubStatus('error', 'Validation failed')
+                }
             }
-            unstable {
-                updateGitHubStatus('failure', 'Validation differences found')
-            }
-            failure {
-                updateGitHubStatus('error', 'Validation failed')
-            }
-        }
+        } 
+
     }
 
 }
