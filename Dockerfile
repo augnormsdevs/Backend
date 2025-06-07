@@ -20,6 +20,7 @@ COPY package*.json ./
 RUN npm install --production
 # Copy compiled JavaScript files from the build stage
 COPY --from=build /usr/src/app/dist ./dist
+
 # Copy email template file to the working directory
 COPY ./src/emailNotification.html ./dist/emailNotification.html
 

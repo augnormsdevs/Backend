@@ -105,7 +105,49 @@ pipeline {
                 failure { updateGitHubStatus('error', 'Build failed') }
             }
         }
+        
+        stage('Push to Docker Hub (simulating ECR)') {
+            environment {
+                STATUS_CONTEXT = 'jenkins/docker-push'
+            }
+            steps {
+                script {
+                    // Use your Docker Hub credential ID here
+                   withCredentials([usernamePassword(credentialsId: 'dbfbbbf6-22d0-496b-a2ec-b943f6669e23', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker build -t augustine963/ekissi_backend:latest .
+                        docker push augustine963/ekissi_backend:latest
+                        '''
+                   }
 
+                }
+            }
+            post {
+                success { updateGitHubStatus('success', 'Docker image pushed successfully') }
+                failure { updateGitHubStatus('error', 'Docker image push failed') }
+            }
+        }
+
+        stage('Prepare Deploy Script') {
+            steps {
+                writeFile file: 'deploy.sh', text: '''
+                    #!/bin/bash
+                    echo "🔄 Pulling latest image..."
+                    docker pull augustine963/ekissi_backend:latest
+
+                    echo "🛑 Stopping existing container if running..."
+                    docker stop ekissi_backend || true
+                    docker rm ekissi_backend || true
+
+                    echo "🚀 Starting new container..."
+                    docker run -d --name ekissi_backend -p 3000:3000 augustine963/ekissi_backend:latest
+
+                    echo "✅ Deployment complete. App should be running on port 3000
+                '''
+                sh 'chmod +x deploy.sh'
+            }
+        }
 
     }
 
