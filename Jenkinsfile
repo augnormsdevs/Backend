@@ -35,13 +35,17 @@ pipeline {
                 STATUS_CONTEXT = 'jenkins/package-validation'
             }
             steps {
-                configFileProvider([configFile(fileId: 'fe7d7862-f4d5-4b49-aa6a-0fd72c48292b', variable: 'backend-packages')]) {
+                configFileProvider([configFile(fileId: 'fe7d7862-f4d5-4b49-aa6a-0fd72c48292b', variable: 'backend_packages')]) {
                     sh '''
                         echo "Comparing current package.json to reference..."
 
                         # Extract dependencies only (or use jq for advanced comparison)
                         jq '.dependencies' package.json > current_deps.json
-                        jq '.dependencies' -- "$backend-packages" > reference_deps.json
+                        jq '.dependencies' -- "$backend_packages" > reference_deps.json
+
+                        echo "File content from backend_packages:"
+                        cat "$backend_packages"
+
 
 
                         # Diff and store result
