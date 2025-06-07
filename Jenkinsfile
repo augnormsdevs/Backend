@@ -154,15 +154,16 @@ pipeline {
                     docker rm ekissi_backend || true
 
                     echo "🚀 Starting new container..."
-                    docker run -d --name ekissi_backend \\
-                      --network ekissi_network \\
-                      -p 3000:3000 \\
-                      -e DB_HOST=mysql_database \\
-                      -e DB_PORT=3306 \\
-                      -e DB_NAME=ekissi \\
-                      -e DB_USER=root \\
-                      -e DB_PASSWORD=microvelli027 \\
-                      augustine963/ekissi_backend:latest
+                    docker run -d --name ekissi_backend \
+                        --network ekissi_network \
+                        -p 3000:3000 \
+                        -e DATABASE_HOST=mysql_database \
+                        -e DATABASE_PORT=3306 \
+                        -e DATABASE_NAME=ekissi \
+                        -e DATABASE_USER=root \
+                        -e DATABASE_PASSWORD=microvelli027 \
+                        augustine963/ekissi_backend:latest
+
 
                     echo "✅ Deployment complete. App should be running on port 3000"
                 '''
