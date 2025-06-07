@@ -41,7 +41,8 @@ pipeline {
 
                         # Extract dependencies only (or use jq for advanced comparison)
                         jq '.dependencies' package.json > current_deps.json
-                        jq '.dependencies' "$backend-packages" > reference_deps.json
+                        jq '.dependencies' -- "$backend-packages" > reference_deps.json
+
 
                         # Diff and store result
                         diff_output=$(diff -u reference_deps.json current_deps.json || true)
