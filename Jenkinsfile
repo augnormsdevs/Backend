@@ -92,10 +92,11 @@ pipeline {
         }
 
         stage('Run Build') {
-\
+            environment {
+                STATUS_CONTEXT = 'jenkins/build'
+            }
             steps {
                 script {
-                    updateGitHubStatus('pending', 'Build in progress')
                     sh 'npm run build' 
                 }
             }
