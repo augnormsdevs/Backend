@@ -149,6 +149,12 @@ pipeline {
             }
         }
 
+        stage('Deploy Container') {
+            steps {
+                sh './deploy.sh'
+            }
+        }
+
     }
 
 }
