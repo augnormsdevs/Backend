@@ -19,7 +19,7 @@ const databaseConnection = new DataSource({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  synchronize: true,
+  synchronize: false,
   logging:true,
   entities: [About, AccessLevel, Account, Gallery, Members, Profileimage, Relationship, Verification],
   migrations: [],
