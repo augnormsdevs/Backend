@@ -24,6 +24,14 @@ def updateGitHubStatus(String state, String description) {
 pipeline {
     agent any
 
+    environment {
+        DB_HOST = credentials('DATABASE_HOST')
+        DB_PORT = credentials('DATABASE_PORT')
+        DB_NAME = credentials('DATABASE_NAME')
+        DB_USER = credentials('DATABASE_USER')
+        DB_PASSWORD = credentials('MYSQL_DB_PASSWORD')
+    }
+
     stages {
 
         stage('Checkout') {
@@ -141,7 +149,15 @@ pipeline {
                     docker rm ekissi_backend || true
 
                     echo "🚀 Starting new container..."
-                    docker run -d --name ekissi_backend -p 3000:3000 augustine963/ekissi_backend:latest
+                    docker run -d --name ekissi_backend \\
+                      --network ekissi_network \\
+                      -p 3000:3000 \\
+                      -e DB_HOST=$DB_HOST \\
+                      -e DB_PORT=$DB_PORT \\
+                      -e DB_NAME=$DB_NAME \\
+                      -e DB_USER=$DB_USER \\
+                      -e DB_PASSWORD=$DB_PASSWORD \\
+                      augustine963/ekissi_backend:latest
 
                     echo "✅ Deployment complete. App should be running on port 3000"
                 '''
