@@ -75,6 +75,19 @@ pipeline {
             }
         } 
 
+        stage('Install Dependencies') {
+
+            steps {
+                script {
+                    sh 'npm install'
+                }
+            }
+            post {
+                success { updateGitHubStatus('success', 'Dependencies installed') }
+                failure { updateGitHubStatus('error', 'Installation failed') }
+            }
+        }
+
     }
 
 }
