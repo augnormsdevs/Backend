@@ -76,6 +76,9 @@ pipeline {
         } 
 
         stage('Install Dependencies') {
+              environment {
+                STATUS_CONTEXT = 'jenkins/dependency-install' 
+            }
 
             steps {
                 script {
