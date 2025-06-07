@@ -37,6 +37,9 @@ pipeline {
             steps {
                 configFileProvider([configFile(fileId: 'fe7d7862-f4d5-4b49-aa6a-0fd72c48292b', variable: 'backend-packages')]) {
                     sh '''
+                        echo "Installing jq if not available..."
+                        command -v jq || (apk add --no-cache jq || apt-get update && apt-get install -y jq)
+                        
                         echo "Comparing current package.json to reference..."
 
                         # Extract dependencies only (or use jq for advanced comparison)
