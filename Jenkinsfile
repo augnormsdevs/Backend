@@ -189,7 +189,7 @@ pipeline {
                     -e DATABASE_NAME="$DB_NAME" \
                     -e DATABASE_USER="$DB_USER" \
                     -e DATABASE_PASSWORD="$DB_PASSWORD" \
-                    -e ACCESS_LEVEL_ENDPOINT="$ACESS_LEVEL_ENDPOINT" \
+                    -e ACCESS_LEVEL_ENDPOINT="$ACCESS_LEVEL_ENDPOINT" \
                     -e PROFILE_IMAGE_ENDPOINT="$PROFILE_IMAGE_ENDPOINT" \
                     -e ALLPROFILE_IMAGES_ENDPOINT="$ALLPROFILE_IMAGES_ENDPOINT" \
                     augustine963/ekissi_backend:latest
