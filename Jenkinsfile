@@ -30,6 +30,9 @@ pipeline {
         DB_NAME = credentials('DATABASE_NAME')
         DB_USER = credentials('DATABASE_USER')
         DB_PASSWORD = credentials('MYSQL_DB_PASSWORD')
+        ACCESS_LEVEL_ENDPOINT = credentials("ACCESS_LEVEL_ENDPOINT")
+        PROFILE_IMAGE_ENDPOINT = credentials("PROFILE_IMAGE_ENDPOINT")
+        ALLPROFILE_IMAGES_ENDPOINT = credentials("ALLPROFILE_IMAGES_ENDPOINT")
     }
 
     stages {
@@ -140,7 +143,36 @@ pipeline {
         stage('Prepare Deploy Script') {
             steps {
                 writeFile file: 'deploy.sh', text: '''
-                    #!/bin/bash
+                   #!/bin/bash
+
+                    echo "🐘 Ensuring MySQL container is running..."
+
+                    # Check if the MySQL container exists
+                    if [ "$(docker ps -a -q -f name=mysql_database)" ]; then
+                    # Check if it's stopped
+                    if [ "$(docker inspect -f '{{.State.Running}}' mysql_database)" = "false" ]; then
+                        echo "🔄 Starting existing MySQL container..."
+                        docker start mysql_database
+                    else
+                        echo "✅ MySQL container is already running."
+                    fi
+                    else
+                    echo "📦 Creating and starting new MySQL container..."
+  
+                        docker run -d --name mysql_database \
+                         --network ekissi_network \
+                         -e MYSQL_ROOT_PASSWORD="$DB_PASSWORD" \
+                         -e MYSQL_DATABASE="$DB_NAME" \
+                         -e MYSQL_USER="$DB_USER" \
+                         -e MYSQL_DB_PASSWORD="$DB_PASSWORD" \
+                         -v mysql_db:/var/lib/mysql \
+                         -p 3307:3306 \
+                         mysql:latest
+                    fi
+
+                    echo "⏳ Giving MySQL a few seconds to get ready..."
+                    sleep 10
+
                     echo "🔄 Pulling latest image..."
                     docker pull augustine963/ekissi_backend:latest
 
@@ -149,7 +181,7 @@ pipeline {
                     docker rm ekissi_backend || true
 
                     echo "🚀 Starting new container..."
-                   docker run -d --name ekissi_backend \
+                    docker run -d --name ekissi_backend \
                     --network ekissi_network \
                     -p 3000:3000 \
                     -e DATABASE_HOST="$DB_HOST" \
@@ -157,9 +189,13 @@ pipeline {
                     -e DATABASE_NAME="$DB_NAME" \
                     -e DATABASE_USER="$DB_USER" \
                     -e DATABASE_PASSWORD="$DB_PASSWORD" \
+                    -e ACCESS_LEVEL_ENDPOINT="$ACESS_LEVEL_ENDPOINT" \
+                    -e PROFILE_IMAGE_ENDPOINT="$PROFILE_IMAGE_ENDPOINT" \
+                    -e ALLPROFILE_IMAGES_ENDPOINT="$ALLPROFILE_IMAGES_ENDPOINT" \
                     augustine963/ekissi_backend:latest
 
-                    echo "✅ Deployment complete. App should be running on port 3000"
+                    echo "✅ Deployment complete. App should be running on http://localhost:3000"
+
                 '''
                 sh 'chmod +x deploy.sh'
             }
