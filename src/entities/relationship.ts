@@ -6,9 +6,10 @@ export class Relationship{
     @PrimaryGeneratedColumn()
     id:number;
     
-    @ManyToOne(() => Members, parent => parent.children)
+    @ManyToOne(() => Members, parent => parent.children, { cascade: true })
     parent: Members;
 
-    @ManyToOne(() => Members, child => child.parents)
+    @ManyToOne(() => Members, child => child.parents, { cascade: true })
     child: Members;
+
 }
